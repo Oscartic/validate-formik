@@ -1,28 +1,79 @@
-import React from "react";
-import { Container, Button, Form } from "semantic-ui-react";
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import { Container, Button, Form, Message } from "semantic-ui-react";
 // TODO: import useFormik from formik library
 
 function App() {
   // TODO: add a const called formik assigned to useFormik()
+  const [logged, setLogged] = useState(false);
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: ''
+    },
+    onSubmit: values => {
+      console.log('Form: ', values);
+      setLogged(true);
+    },
+    validate: values => {
+      let errors = {};
+      if (!values.email) errors.email = 'Field required';
+      if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) errors.email = 'Username should be an email';
+      if (!values.password) errors.password = 'Field required';
+      return errors;
+    }
+  });
 
-  const handleForm = (e) => {
-    e.preventDefault();
-    console.log("se manda info")
-  }
 
   return (
     <Container>
-      <Form onSubmit={handleForm} >
+      <h1>Login</h1>
+      <Form onSubmit={formik.handleSubmit} >
         <Form.Field>
-          <label>email</label>
-          <input placeholder='Email' />
+          <label>Email</label>
+          <input 
+            placeholder='Email' 
+            name="email" 
+            type="email"
+            onChange={formik.handleChange} 
+            value={formik.values.name}
+            id="emailField"
+          />
+            {
+              formik.errors.email ? 
+                <div id="emailError">
+                  {formik.errors.email}
+                </div> : 
+                null
+            }
         </Form.Field>
         <Form.Field>
           <label>Password</label>
-          <input placeholder='Password' />
+          <input 
+            placeholder='Password' 
+            name="password" 
+            type="password"
+            onChange={formik.handleChange} 
+            value={formik.values.password}
+            id="pswField"
+          />
+          {
+              formik.errors.password ? 
+                <div id="pswError">
+                  {formik.errors.password}
+                </div> : 
+                null
+            }
         </Form.Field>
-        <Button type='submit'>Login</Button>
+        <Button type='submit' id="submitBtn">Login</Button>
       </Form>
+      {
+        logged ? 
+          <Message positive>
+            <strong>Login Successful</strong>
+          </Message> : 
+          null
+      }
     </Container>
   );
 }
